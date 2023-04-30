@@ -6,7 +6,7 @@ import torch
 
 env = gym.make("LunarLander-v2", render_mode=None)
 model = GAmodel().to(device)
-torch_ga = torchga.TorchGA(model = model, num_solutions=50)
+torch_ga = torchga.TorchGA(model = model, num_solutions=100)
 
 def fitness_func(solution, sol_idx):
     global model, evn, torch_ga
@@ -30,7 +30,8 @@ def callback_generation(ga_instance):
     print("Fitness    = {fitness}".format(fitness=ga_instance.best_solution()[1]-1000))
     best_solution = ga_instance.best_solution()[0]
     best_solution = torchga.model_weights_as_dict(model=model, weights_vector=best_solution)
-    if ga_instance.best_solution()[1]-1000 > 250:
+
+    if ga_instance.best_solution()[1]-1000 > 200:
         model.load_state_dict(best_solution)
         env_show = gym.make("LunarLander-v2", render_mode="human")
         observation, info = env.reset(seed=42)
@@ -45,6 +46,8 @@ def callback_generation(ga_instance):
         print(f"nice solution reward: {reward_sum}")
         env_show.close()
         torch.save(model.state_dict(), "./checkpoint")
+        ga_instance.plot_result(title="Iteration vs. Fitness")
+        exit()
 
 def callbacll_fitness(ga_instance, solusion_fits):
     pass
